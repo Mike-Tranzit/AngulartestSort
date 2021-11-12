@@ -1,5 +1,17 @@
-import { Directive, Input, ElementRef, Renderer2, HostListener } from '@angular/core';
-import { Sort } from '../util/sort';
+import {Directive, ElementRef, HostBinding, HostListener, inject, Inject, InjectionToken, Input} from '@angular/core';
+import {Sort} from '../util/sort';
+import {DOCUMENT} from '@angular/common';
+
+export const WINDOW = new InjectionToken<Window>('DOCUMENT ref', {
+  factory: () => {
+    const {defaultView} = inject(DOCUMENT);
+
+    if (!defaultView) {
+      throw new Error('Window is not available');
+    }
+    return defaultView;
+  }
+});
 
 
 @Directive({
@@ -8,27 +20,38 @@ import { Sort } from '../util/sort';
 export class SortDirective {
 
   @Input() appSort: Array<any>;
-  constructor(private renderer: Renderer2, private targetElem: ElementRef) { }
 
-  @HostListener("click")
+  constructor(private targetElem: ElementRef, @Inject(WINDOW) private windowRef: Window) {
+  }
+
+  @HostListener('click')
   sortData() {
-    // Create Object of Sort Class
     const sort = new Sort();
-    // Get Reference Of Current Clicked Element
     const elem = this.targetElem.nativeElement;
-    // Get In WHich Order list should be sorted by default it should be set to desc on element attribute
-    const order = elem.getAttribute("data-order");
-    // Get The Property Type specially set [data-type=date] if it is date field
-    const type = elem.getAttribute("data-type");
-    // Get The Property Name from Element Attribute
-    const property = elem.getAttribute("data-name");
-    if (order === "desc") {
-      this.appSort.sort(sort.startSort(property, order, type));
-      elem.setAttribute("data-order", "asc");
+    const order = elem.getAttribute('data-order');
+    const type = elem.getAttribute('data-type');
+    const property = elem.getAttribute('data-name');
+
+    const {document} = this.windowRef;
+    const elements = document.querySelectorAll('th span');
+
+    if (elements) {
+      elements.forEach((element: HTMLElement) => {
+        if (!(element.getAttribute('data-name') === property)) {
+          element.classList.remove('active');
+        } else {
+          element.classList.add('active');
+        }
+      });
     }
-    else {
+
+    if (order === 'desc') {
       this.appSort.sort(sort.startSort(property, order, type));
-      elem.setAttribute("data-order", "desc");
+      elem.setAttribute('data-order', 'asc');
+    } else {
+      this.appSort.sort(sort.startSort(property, order, type));
+      elem.setAttribute('data-order', 'desc');
     }
+
   }
 }

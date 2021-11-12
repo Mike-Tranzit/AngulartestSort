@@ -1,0 +1,26 @@
+span {
+  background-image: url(~src/assets/icons/cupid.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+span[data-order='desc'].active {
+  background-image: url(~src/assets/icons/up-arrow.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+span[data-order='asc'].active {
+  background-image: url(~src/assets/icons/down-arrow.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  width: 16px;
+  height: 16px;
+  display: block;
+}
